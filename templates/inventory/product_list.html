@@ -1,54 +1,130 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدیریت انبار</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .container { margin: 50px auto; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2 class="text-center mb-4">لیست محصولات انبار</h2>
-        <a href="{% url 'product_create' %}" class="btn btn-primary mb-3">اضافه کردن محصول</a>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>کد محصول</th>
-                    <th>عنوان محصول</th>
-                    <th>قیمت (تومان)</th>
-                    <th>تعداد</th>
-                    <th>تاریخ انقضا</th>
-                    <th>تاریخ ثبت</th>
-                    <th>عملیات</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>{{ product.product_code }}</td>
-                    <td>{{ product.title }}</td>
-                    <td>{{ product.price }}</td>
-                    <td>{{ product.quantity }}</td>
-                    <td>{{ product.expiration_date|date:"Y/m/d" }}</td>
-                    <td>{{ product.created_at|date:"Y/m/d" }}</td>
-                    <td>
-                        <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-warning">ویرایش</a>
-                        <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger">حذف</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center">محصولی یافت نشد.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a href="{% url 'home' %}" class="btn btn-secondary">بازگشت به صفحه اصلی</a>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% extends 'inventory/base_template.html' %}
+{% block title %}لیست محصولات{% endblock %}
+{% block content %}
+    <h2 class="text-center mb-4">لیست محصولات انبار</h2>
+
+    <form method="get" class="search-form">
+        <div class="input-group mb-3">
+            <input type="text" name="q" class="form-control" placeholder="جستجوی سریع (کد، نام، قیمت، تعداد)" value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary">جستجو</button>
+        </div>
+        <div class="advanced-search">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="code" class="form-control" placeholder="کد محصول" value="{{ search_code }}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="title" class="form-control" placeholder="نام محصول" value="{{ search_title }}">
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="number" name="min_price" class="form-control" placeholder="حداقل قیمت" value="{{ search_min_price }}">
+                        <input type="number" name="max_price" class="form-control" placeholder="حداکثر قیمت" value="{{ search_max_price }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="number" name="min_quantity" class="form-control" placeholder="حداقل تعداد" value="{{ search_min_quantity }}">
+                        <input type="number" name="max_quantity" class="form-control" placeholder="حداکثر تعداد" value="{{ search_max_quantity }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="datetime-local" name="created_start" class="form-control" placeholder="تاریخ ثبت شروع" value="{{ search_created_start }}">
+                        <input type="datetime-local" name="created_end" class="form-control" placeholder="تاریخ ثبت پایان" value="{{ search_created_end }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="datetime-local" name="updated_start" class="form-control" placeholder="آخرین ویرایش شروع" value="{{ search_updated_start }}">
+                        <input type="datetime-local" name="updated_end" class="form-control" placeholder="آخرین ویرایش پایان" value="{{ search_updated_end }}">
+                    </div>
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="submit" class="btn btn-primary">اعمال فیلترها</button>
+                    <a href="{% url 'product_list' %}" class="btn btn-secondary ms-2">پاک کردن فیلترها</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <span class="toggle-advanced btn btn-primary mb-3" onclick="toggleAdvancedSearch()">جستجوی پیشرفته</span>
+    <a href="{% url 'product_create' %}" class="btn btn-primary mb-3">اضافه کردن محصول</a>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_code %}code={{ search_code }}&{% endif %}{% if search_title %}title={{ search_title }}&{% endif %}{% if search_min_price %}min_price={{ search_min_price }}&{% endif %}{% if search_max_price %}max_price={{ search_max_price }}&{% endif %}{% if search_min_quantity %}min_quantity={{ search_min_quantity }}&{% endif %}{% if search_max_quantity %}max_quantity={{ search_max_quantity }}&{% endif %}{% if search_created_start %}created_start={{ search_created_start }}&{% endif %}{% if search_created_end %}created_end={{ search_created_end }}&{% endif %}{% if search_updated_start %}updated_start={{ search_updated_start }}&{% endif %}{% if search_updated_end %}updated_end={{ search_updated_end }}&{% endif %}sort=product_code&order={% if sort_by == 'product_code' and order == 'asc' %}desc{% else %}asc{% endif %}">
+                        کد محصول
+                    </a>
+                    {% if sort_by == 'product_code' %}
+                        <i class="fas {% if order == 'asc' %}fa-sort-up{% else %}fa-sort-down{% endif %} sort-icon"></i>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_code %}code={{ search_code }}&{% endif %}{% if search_title %}title={{ search_title }}&{% endif %}{% if search_min_price %}min_price={{ search_min_price }}&{% endif %}{% if search_max_price %}max_price={{ search_max_price }}&{% endif %}{% if search_min_quantity %}min_quantity={{ search_min_quantity }}&{% endif %}{% if search_max_quantity %}max_quantity={{ search_max_quantity }}&{% endif %}{% if search_created_start %}created_start={{ search_created_start }}&{% endif %}{% if search_created_end %}created_end={{ search_created_end }}&{% endif %}{% if search_updated_start %}updated_start={{ search_updated_start }}&{% endif %}{% if search_updated_end %}updated_end={{ search_updated_end }}&{% endif %}sort=title&order={% if sort_by == 'title' and order == 'asc' %}desc{% else %}asc{% endif %}">
+                        نام محصول
+                    </a>
+                    {% if sort_by == 'title' %}
+                        <i class="fas {% if order == 'asc' %}fa-sort-up{% else %}fa-sort-down{% endif %} sort-icon"></i>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_code %}code={{ search_code }}&{% endif %}{% if search_title %}title={{ search_title }}&{% endif %}{% if search_min_price %}min_price={{ search_min_price }}&{% endif %}{% if search_max_price %}max_price={{ search_max_price }}&{% endif %}{% if search_min_quantity %}min_quantity={{ search_min_quantity }}&{% endif %}{% if search_max_quantity %}max_quantity={{ search_max_quantity }}&{% endif %}{% if search_created_start %}created_start={{ search_created_start }}&{% endif %}{% if search_created_end %}created_end={{ search_created_end }}&{% endif %}{% if search_updated_start %}updated_start={{ search_updated_start }}&{% endif %}{% if search_updated_end %}updated_end={{ search_updated_end }}&{% endif %}sort=price&order={% if sort_by == 'price' and order == 'asc' %}desc{% else %}asc{% endif %}">
+                        قیمت (تومان)
+                    </a>
+                    {% if sort_by == 'price' %}
+                        <i class="fas {% if order == 'asc' %}fa-sort-up{% else %}fa-sort-down{% endif %} sort-icon"></i>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_code %}code={{ search_code }}&{% endif %}{% if search_title %}title={{ search_title }}&{% endif %}{% if search_min_price %}min_price={{ search_min_price }}&{% endif %}{% if search_max_price %}max_price={{ search_max_price }}&{% endif %}{% if search_min_quantity %}min_quantity={{ search_min_quantity }}&{% endif %}{% if search_max_quantity %}max_quantity={{ search_max_quantity }}&{% endif %}{% if search_created_start %}created_start={{ search_created_start }}&{% endif %}{% if search_created_end %}created_end={{ search_created_end }}&{% endif %}{% if search_updated_start %}updated_start={{ search_updated_start }}&{% endif %}{% if search_updated_end %}updated_end={{ search_updated_end }}&{% endif %}sort=quantity&order={% if sort_by == 'quantity' and order == 'asc' %}desc{% else %}asc{% endif %}">
+                        تعداد
+                    </a>
+                    {% if sort_by == 'quantity' %}
+                        <i class="fas {% if order == 'asc' %}fa-sort-up{% else %}fa-sort-down{% endif %} sort-icon"></i>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_code %}code={{ search_code }}&{% endif %}{% if search_title %}title={{ search_title }}&{% endif %}{% if search_min_price %}min_price={{ search_min_price }}&{% endif %}{% if search_max_price %}max_price={{ search_max_price }}&{% endif %}{% if search_min_quantity %}min_quantity={{ search_min_quantity }}&{% endif %}{% if search_max_quantity %}max_quantity={{ search_max_quantity }}&{% endif %}{% if search_created_start %}created_start={{ search_created_start }}&{% endif %}{% if search_created_end %}created_end={{ search_created_end }}&{% endif %}{% if search_updated_start %}updated_start={{ search_updated_start }}&{% endif %}{% if search_updated_end %}updated_end={{ search_updated_end }}&{% endif %}sort=created_at&order={% if sort_by == 'created_at' and order == 'asc' %}desc{% else %}asc{% endif %}">
+                        تاریخ ثبت
+                    </a>
+                    {% if sort_by == 'created_at' %}
+                        <i class="fas {% if order == 'asc' %}fa-sort-up{% else %}fa-sort-down{% endif %} sort-icon"></i>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if search_code %}code={{ search_code }}&{% endif %}{% if search_title %}title={{ search_title }}&{% endif %}{% if search_min_price %}min_price={{ search_min_price }}&{% endif %}{% if search_max_price %}max_price={{ search_max_price }}&{% endif %}{% if search_min_quantity %}min_quantity={{ search_min_quantity }}&{% endif %}{% if search_max_quantity %}max_quantity={{ search_max_quantity }}&{% endif %}{% if search_created_start %}created_start={{ search_created_start }}&{% endif %}{% if search_created_end %}created_end={{ search_created_end }}&{% endif %}{% if search_updated_start %}updated_start={{ search_updated_start }}&{% endif %}{% if search_updated_end %}updated_end={{ search_updated_end }}&{% endif %}sort=updated_at&order={% if sort_by == 'updated_at' and order == 'asc' %}desc{% else %}asc{% endif %}">
+                        آخرین ویرایش
+                    </a>
+                    {% if sort_by == 'updated_at' %}
+                        <i class="fas {% if order == 'asc' %}fa-sort-up{% else %}fa-sort-down{% endif %} sort-icon"></i>
+                    {% endif %}
+                </th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in products_with_jalali %}
+            <tr>
+                <td>{{ item.product.product_code }}</td>
+                <td>{{ item.product.title }}</td>
+                <td>{{ item.product.price }}</td>
+                <td>{{ item.product.quantity }}</td>
+                <td>{{ item.jalali_created }}</td>
+                <td>{{ item.jalali_updated }}</td>
+                <td>
+                    <a href="{% url 'product_update' item.product.pk %}" class="btn btn-sm btn-warning">ویرایش</a>
+                    <a href="{% url 'product_delete' item.product.pk %}" class="btn btn-sm btn-danger">حذف</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">محصولی یافت نشد.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">بازگشت به داشبورد</a>
+{% endblock %}

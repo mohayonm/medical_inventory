@@ -1,0 +1,38 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">فروشگاه</h1>
+    <div class="row">
+        {% for item in products_with_jalali %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% if item.main_image %}
+                <img src="{{ item.main_image }}" class="card-img-top" alt="{{ item.product.title }}">
+                {% else %}
+                <img src="/media/default.jpg" class="card-img-top" alt="تصویر پیش‌فرض">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.product.title }}</h5>
+                    <p class="card-text">قیمت: {{ item.product.price }} تومان</p>
+                    <p class="card-text">تعداد: {{ item.product.quantity }}</p>
+                    {% if item.description %}
+                    <p class="card-text">توضیحات: {{ item.description }}</p>
+                    {% else %}
+                    <p class="card-text">توضیحاتی موجود نیست.</p>
+                    {% endif %}
+                    {% for img in item.additional_images %}
+                    <img src="{{ img }}" class="card-img-top" alt="تصویر اضافی" style="max-width: 100px;">
+                    {% endfor %}
+                    <p class="card-text">تاریخ ثبت: {{ item.jalali_created }}</p>
+                    <p class="card-text">آخرین ویرایش: {{ item.jalali_updated }}</p>
+                    <a href="{% url 'product_detail' item.product.id %}" class="btn btn-primary">جزئیات بیشتر</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>محصولی برای نمایش وجود ندارد.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

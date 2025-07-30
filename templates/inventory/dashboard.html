@@ -1,0 +1,31 @@
+{% extends 'inventory/base_template.html' %}
+{% block title %}داشبورد{% endblock %}
+{% block content %}
+    <h2 class="text-center mb-4">خوش آمدید، {{ username }}!</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <div class="row">
+        {% for section in sections %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas {{ section.icon }} fa-2x mb-3"></i>
+                        <h5 class="card-title">{{ section.name }}</h5>
+                        {% if section.form_id %}
+                            <form method="post" id="{{ section.form_id }}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="file" name="excel_file" class="form-control mb-2">
+                                <button type="submit" class="btn btn-primary w-100">آپلود</button>
+                            </form>
+                        {% else %}
+                            <a href="{{ section.url }}" class="btn btn-primary w-100">ورود</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

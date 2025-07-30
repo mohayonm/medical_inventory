@@ -1,0 +1,74 @@
+{% extends 'inventory/base_template.html' %}
+{% block title %}درآمد{% endblock %}
+{% block content %}
+    <h2 class="text-center mb-4">گزارش درآمد</h2>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">درآمد کل</h5>
+                    <p class="card-text">{{ total_income }} تومان</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">امروز</h5>
+                    <p class="card-text">{{ today_income }} تومان</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">این هفته</h5>
+                    <p class="card-text">{{ week_income }} تومان</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">این ماه</h5>
+                    <p class="card-text">{{ month_income }} تومان</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">این سال</h5>
+                    <p class="card-text">{{ year_income }} تومان</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 class="mt-4">درآمد بر اساس محصول</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>نام محصول</th>
+                <th>تعداد کل</th>
+                <th>درآمد کل (تومان)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales_by_product %}
+            <tr>
+                <td>{{ sale.product__title }}</td>
+                <td>{{ sale.total_quantity }}</td>
+                <td>{{ sale.total_price }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">داده‌ای یافت نشد.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">بازگشت به داشبورد</a>
+{% endblock %}
+
+
+

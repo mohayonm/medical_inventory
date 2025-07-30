@@ -1,0 +1,87 @@
+{% extends 'inventory/base_template.html' %}
+{% block title %}مدیریت دسترسی{% endblock %}
+{% block content %}
+    <h2 class="text-center mb-4">مدیریت دسترسی‌ها</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <h3 class="mb-3">اضافه کردن نقش</h3>
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <input type="hidden" name="add_role">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="user_id" class="form-label">کاربر:</label>
+                <select name="user_id" id="user_id" class="form-select">
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="role_id" class="form-label">نقش:</label>
+                <select name="role_id" id="role_id" class="form-select">
+                    {% for role in roles %}
+                        <option value="{{ role.id }}">{{ role.name }}</option>
+                    {% endfor %}
+                    {% if not roles %}
+                        <option value="" disabled>هیچ نقشی یافت نشد</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-md-4 align-self-end">
+                <button type="submit" class="btn btn-primary w-100">اضافه کردن نقش</button>
+            </div>
+        </div>
+    </form>
+    <h3 class="mb-3">اضافه کردن نقش جدید</h3>
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <input type="hidden" name="add_role_new">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="new_role_name" class="form-label">نام نقش جدید:</label>
+                <input type="text" name="new_role_name" id="new_role_name" class="form-control" required>
+            </div>
+            <div class="col-md-6 align-self-end">
+                <button type="submit" class="btn btn-success w-100">ایجاد نقش</button>
+            </div>
+        </div>
+    </form>
+    <h3 class="mb-3">اضافه کردن کاربر جدید</h3>
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <input type="hidden" name="add_user">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="new_username" class="form-label">نام کاربری:</label>
+                <input type="text" name="new_username" id="new_username" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label for="new_password" class="form-label">رمز عبور:</label>
+                <input type="password" name="new_password" id="new_password" class="form-control" required>
+            </div>
+            <div class="col-md-4 align-self-end">
+                <button type="submit" class="btn btn-success w-100">ایجاد کاربر</button>
+            </div>
+        </div>
+    </form>
+    <h3 class="mt-4">لیست کاربران:</h3>
+    <ul class="list-group">
+        {% for user in users %}
+            <li class="list-group-item">{{ user.username }}</li>
+        {% endfor %}
+    </ul>
+    <h3 class="mt-4">نقش‌های فعلی:</h3>
+    <ul class="list-group">
+        {% for ur in user_roles %}
+            <li class="list-group-item">{{ ur.user.username }} - {{ ur.role.name }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">بازگشت به داشبورد</a>
+{% endblock %}

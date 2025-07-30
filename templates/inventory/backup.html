@@ -1,0 +1,18 @@
+{% extends 'inventory/base_template.html' %}
+{% block title %}بکاپ‌گیری{% endblock %}
+{% block content %}
+    <h2 class="text-center mb-4">بکاپ‌گیری</h2>
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-body text-center">
+                    <a href="{% url 'backup' %}?type=excel_products" class="btn btn-success w-100 mb-2">بکاپ اکسل محصولات</a>
+                    <a href="{% url 'backup' %}?type=json_products" class="btn btn-info w-100 mb-2">بکاپ JSON محصولات</a>
+                    <a href="{% url 'backup' %}?type=excel_sales" class="btn btn-success w-100 mb-2">بکاپ اکسل فروش‌ها</a>
+                    <a href="{% url 'backup' %}?type=json_sales" class="btn btn-info w-100">بکاپ JSON فروش‌ها</a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">بازگشت به داشبورد</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
